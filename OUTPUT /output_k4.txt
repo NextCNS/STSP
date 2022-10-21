@@ -1,0 +1,36 @@
+first: {
+    'slack_v1cfe5722ebdc40d1b7ed1172e366b3b0_0': 0, 
+    'slack_v2572a9a1b37541618c522c70d42aff04_0': 0, 
+    'slack_vb8f8232918cf448bb0431fa31714feda_0': 0, 
+    'slack_vb8f8232918cf448bb0431fa31714feda_1': 0, 
+    'slack_vb8f8232918cf448bb0431fa31714feda_2': 1, 
+    'slack_vb8f8232918cf448bb0431fa31714feda_3': 0, 
+    'slack_vb8f8232918cf448bb0431fa31714feda_4': 0, 
+    'x[0][1]': 1, 
+    'x[0][2]': 0, 
+    'x[0][3]': 0, 
+    'x[1][0]': 0, 
+    'x[1][2]': 0, 
+    'x[1][3]': 1, 
+    'x[2][0]': 0, 
+    'x[2][1]': 0, 
+    'x[2][3]': 0, 
+    'x[3][0]': 0, 
+    'x[3][1]': 0, 
+    'x[3][2]': 0
+}
+info: {
+    'timing': 
+    {
+        'qpu_sampling_time': 204600.0, 
+        'qpu_anneal_time_per_sample': 10.0, 
+        'qpu_readout_time_per_sample': 71.76,
+        'qpu_access_time': 219662.36, 
+        'qpu_access_overhead_time': 1349.64, 
+        'qpu_programming_time': 15062.36, 
+        'qpu_delay_time_per_sample': 20.54, 
+        'post_processing_overhead_time': 786.0, 
+        'total_post_processing_time': 786.0
+    }, 
+    'problem_id': '4d14a1c1-9bce-4b80-91c8-18eca05e3de8'
+}

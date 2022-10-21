@@ -1,49 +1,46 @@
-# Copyright 2021 D-Wave Systems Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 import os
 import itertools
 import click
+import math
+import dimod
 import pandas as pd
-from dwave.system import LeapHybridCQMSampler
+from dwave.system import LeapHybridCQMSampler, DWaveSampler,FixedEmbeddingComposite, EmbeddingComposite
 from dimod import ConstrainedQuadraticModel, BinaryQuadraticModel, QuadraticModel
+from pyqubo import Array, Constraint, solve_qubo, Binary
+from datetime import datetime
+# # P4 - C_MAX = 20
+# PROFIT = [0,8,3,0]
+# P5 - C_MAX = 25
+PROFIT = [0,8,3,9,0]
 
+C_MAX = 0
+N = len(PROFIT)
 def parse_inputs(data_file, capacity):
     """Parse user input and files for data to build CQM.
 
     Args:
         data_file (csv file):
-            File of items (weight & cost) slated to ship.
+            File of connection between arcs
         capacity (int):
-            Max weight the shipping container can accept.
+            Max prefefined weight.
 
     Returns:
-        Costs, weights, and capacity.
+        profits, weights, and capacity.
     """
-    df = pd.read_csv(data_file, names=['cost', 'weight'])
+    df = pd.read_csv(data_file, names=['vertex1','vertex2', 'weight'])
 
     if not capacity:
         capacity = int(0.8 * sum(df['weight']))
         print("\nSetting weight capacity to 80% of total: {}".format(str(capacity)))
 
-    return df['cost'], df['weight'], capacity
+    return df['vertex1'], df['vertex2'], df['weight'], capacity
 
-def build_knapsack_cqm(costs, weights, max_weight):
+def build_knapsack_cqm(profits, vertex1, vertex2,weight, max_weight):
     """Construct a CQM for the knapsack problem.
 
     Args:
-        costs (array-like):
-            Array of costs for the items.
+        profits (array-like):
+            Array of profits for the items.
         weights (array-like):
             Array of weights for the items.
         max_weight (int):
@@ -52,27 +49,68 @@ def build_knapsack_cqm(costs, weights, max_weight):
     Returns:
         Constrained quadratic model instance that represents the knapsack problem.
     """
-    num_items = len(costs)
+    num_items = len(profits)
     print("\nBuilding a CQM for {} items.".format(str(num_items)))
 
     cqm = ConstrainedQuadraticModel()
     obj = BinaryQuadraticModel(vartype='BINARY')
-    constraint = QuadraticModel()
+    constraint1 = QuadraticModel()
+    constraint2 = QuadraticModel()
+    constraint3 = QuadraticModel()
+    constraint4 = QuadraticModel()
+    constraint5 = QuadraticModel()
 
-    for i in range(num_items):
-        # Objective is to maximize the total costs
-        obj.add_variable(i)
-        obj.set_linear(i, -costs[i])
-        # Constraint is to keep the sum of items' weights under or equal capacity
-        constraint.add_variable('BINARY', i)
-        constraint.set_linear(i, weights[i])
-
+    #Maximize the total profit
+    for i in range(1, num_items-1):
+        for j in range(1, num_items):
+            if j != i:
+                # Objective is to maximize the total profit
+                obj.add_variable("x[{}][{}]".format(i,j))
+                obj.set_linear("x[{}][{}]".format(i,j), -profits[i])
     cqm.set_objective(obj)
-    cqm.add_constraint(constraint, sense="<=", rhs=max_weight, label='capacity')
+    #constraint to start from node 1          
+    for j in range(1, num_items):            
+        constraint1.add_variable('BINARY', "x[{}][{}]".format(0,j))
+        constraint1.set_linear("x[{}][{}]".format(0,j), 1)
+    
+    cqm.add_constraint(constraint1, sense="==", rhs=1, weight=None, label='c1')
+    #constraint to end at node n          
+    for j in range(num_items-1):            
+        constraint2.add_variable('BINARY', "x[{}][{}]".format(j,num_items-1))
+        constraint2.set_linear("x[{}][{}]".format(j,num_items-1), 1)
+    cqm.add_constraint(constraint2, sense="==", rhs=1, weight=None, label='c2')
+    
+    #Visit at most 1
+    for k in range(1, num_items-1):
+        for i in range(num_items-1):
+            if i != k:            
+                constraint3.add_variable('BINARY', "x[{}][{}]".format(i,k))
+                constraint3.set_linear("x[{}][{}]".format(i,k), 1)
+    cqm.add_constraint(constraint3, sense="<=", rhs=1, weight=None, label='c3')
+    
+    #leave at most 1
+    for k in range(1, num_items-1):
+        for j in range(1,num_items):
+            if j != k:            
+                constraint4.add_variable('BINARY', "x[{}][{}]".format(k,j))
+                constraint4.set_linear("x[{}][{}]".format(k,j), 1)
+    cqm.add_constraint(constraint4, sense="<=", rhs=1, weight=None, label='c4')
 
+    #smaller than C_Max
+    for from_v,to_v, cos in zip(vertex1, vertex2, weight):            
+        constraint5.add_variable('BINARY', "x[{}][{}]".format(from_v,to_v))
+        constraint5.set_linear("x[{}][{}]".format(from_v,to_v), cos)
+    cqm.add_constraint(constraint5, sense="<=", rhs=25, weight=None, label='c5')
+    # Check
+    # print(obj.variables, obj.linear)
+    # print(constraint1.variables, constraint1.linear)
+    # print(constraint2.variables, constraint2.linear)
+    # print(constraint3.variables, constraint3.linear)
+    # print(constraint4.variables, constraint4.linear)
+    # print(constraint5.variables, constraint5.linear)
     return cqm
 
-def parse_solution(sampleset, costs, weights):
+def parse_solution(sampleset):
     """Translate the best sample returned from solver to shipped items.
 
     Args:
@@ -84,21 +122,22 @@ def parse_solution(sampleset, costs, weights):
         weights (array-like):
             Array of weights for the items.
     """
-    feasible_sampleset = sampleset.filter(lambda row: row.is_feasible)
+    # feasible_sampleset = sampleset.filter(lambda row: row.is_feasible)
 
-    if not len(feasible_sampleset):
-        raise ValueError("No feasible solution found")
+    # if not len(feasible_sampleset):
+    #     raise ValueError("No feasible solution found")
 
-    best = feasible_sampleset.first
+    best = sampleset.first
 
-    selected_item_indices = [key for key, val in best.sample.items() if val==1.0]
-    selected_weights = list(weights.loc[selected_item_indices])
-    selected_costs = list(costs.loc[selected_item_indices])
+    # selected_item_indices = [key for key, val in best.sample.items() if val==1.0]
+    # selected_weights = list(weights.loc[selected_item_indices])
+    # selected_costs = list(costs.loc[selected_item_indices])
 
     print("\nFound best solution at energy {}".format(best.energy))
-    print("\nSelected item numbers (0-indexed):", selected_item_indices)
-    print("\nSelected item weights: {}, total = {}".format(selected_weights, sum(selected_weights)))
-    print("\nSelected item costs: {}, total = {}".format(selected_costs, sum(selected_costs)))
+    # print("\nSelected item numbers (0-indexed):", selected_item_indices)
+    # print("\nSelected item weights: {}, total = {}".format(selected_weights, sum(selected_weights)))
+    # print("\nSelected item costs: {}, total = {}".format(selected_costs, sum(selected_costs)))
+    print("\n Feasible solution: {}".format(best.first.sample))
 
 def datafile_help(max_files=5):
     """Provide content of input file names and total weights for click()'s --help."""
@@ -133,19 +172,41 @@ filename_help = datafile_help()     # Format the help string for the --filename 
               help=filename_help)
 @click.option('--capacity', default=None,
               help="Maximum weight for the container. By default sets to 80% of the total.")
+
 def main(filename, capacity):
     """Solve a knapsack problem using a CQM solver."""
 
     sampler = LeapHybridCQMSampler()
 
-    costs, weights, capacity = parse_inputs(filename, capacity)
+    vertex1, vertex2, weight, C_MAX = parse_inputs(filename, capacity)
+    cqm = build_knapsack_cqm(PROFIT,vertex1, vertex2, weight, C_MAX)
+    bqm, invert = dimod.cqm_to_bqm(cqm)
 
-    cqm = build_knapsack_cqm(costs, weights, capacity)
+    # Dimod
+    # start_time = datetime.now()
+    # sampleset = dimod.ExactSolver().sample(bqm)
+    # end_time =  datetime.now()
+    # QPU
+    qpu = DWaveSampler()
+    sampleset_1 = EmbeddingComposite(qpu).sample(bqm,return_embedding=True,
+                                             answer_mode="raw",
+                                             num_reads=2000,
+                                             annealing_time=1)
+    embedding = sampleset_1.info["embedding_context"]["embedding"]  
+    sampleset_50 = FixedEmbeddingComposite(qpu, embedding).sample(bqm,
+                                                              answer_mode="raw",
+                                                              num_reads=2000,
+                                                              annealing_time=10)
+    # print(sampleset_50.info)
+    # print("Submitting CQM to solver {}.".format(sampler.solver.name))
+    sampleset = sampler.sample_cqm(cqm, label='Example - STSP')
 
-    print("Submitting CQM to solver {}.".format(sampler.solver.name))
-    sampleset = sampler.sample_cqm(cqm, label='Example - Knapsack')
-
-    parse_solution(sampleset, costs, weights)
+    print(f'first: {sampleset_50.first.sample}')
+    print(f'info: {sampleset_50.info}')
+    # print(sampleset.first.sample)
+    # print(sampleset.first.energy)
+    # delta = end_time - start_time
+    # print('Duration: {}'.format(delta.total_seconds() * 1000))
 
 if __name__ == '__main__':
     main()
