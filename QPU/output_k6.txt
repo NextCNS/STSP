@@ -1,0 +1,55 @@
+first: {
+    'slack_v320c44d94418453e82b887552a9e4723_0': 1, 
+    'slack_v320c44d94418453e82b887552a9e4723_1': 0, 
+    'slack_v320c44d94418453e82b887552a9e4723_2': 1, 
+    'slack_v320c44d94418453e82b887552a9e4723_3': 1, 
+    'slack_v320c44d94418453e82b887552a9e4723_4': 0, 
+    'slack_v95235894f76c4372833ea29d5faeb91c_0': 1, 
+    'slack_vd4b0fc826a45455eb89875feff8d8d61_0': 1, 
+    'x[0][1]': 1, 
+    'x[0][2]': 0, 
+    'x[0][3]': 0, 
+    'x[0][4]': 0, 
+    'x[0][5]': 0, 
+    'x[1][0]': 1, 
+    'x[1][2]': 0, 
+    'x[1][3]': 0, 
+    'x[1][4]': 0, 
+    'x[1][5]': 0, 
+    'x[2][0]': 0, 
+    'x[2][1]': 0, 
+    'x[2][3]': 0, 
+    'x[2][4]': 0, 
+    'x[2][5]': 0, 
+    'x[3][0]': 0, 
+    'x[3][1]': 0, 
+    'x[3][2]': 0, 
+    'x[3][4]': 0, 
+    'x[3][5]': 1, 
+    'x[4][0]': 0, 
+    'x[4][1]': 0, 
+    'x[4][2]': 0, 
+    'x[4][3]': 0, 
+    'x[4][5]': 0, 
+    'x[5][0]': 0, 
+    'x[5][1]': 0, 
+    'x[5][2]': 0, 
+    'x[5][3]': 0, 
+    'x[5][4]': 0
+    }
+info: {
+    'timing': 
+    {
+        'qpu_sampling_time': 298800.0,
+         'qpu_anneal_time_per_sample': 25.0, 
+         'qpu_readout_time_per_sample': 103.86, 
+         'qpu_access_time': 313863.56, 
+         'qpu_access_overhead_time': 2883.44, 
+         'qpu_programming_time': 15063.56, 
+         'qpu_delay_time_per_sample': 20.54, 
+         'post_processing_overhead_time': 755.0, 
+         'total_post_processing_time': 2104.0
+    }, 
+    'problem_id': '481d0501-de30-4da0-b32e-d06f00cc3d00'
+}
+energy: 1080.0

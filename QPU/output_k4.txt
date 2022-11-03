@@ -34,3 +34,4 @@ info: {
     }, 
     'problem_id': '4d14a1c1-9bce-4b80-91c8-18eca05e3de8'
 }
+energy: -8.0

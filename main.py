@@ -4,16 +4,16 @@ import click
 import math
 import dimod
 import pandas as pd
-from dwave.system import LeapHybridCQMSampler, DWaveSampler,FixedEmbeddingComposite, EmbeddingComposite
+from dwave.system import LeapHybridCQMSampler, DWaveSampler,FixedEmbeddingComposite, EmbeddingComposite, LeapHybridSampler
 from dimod import ConstrainedQuadraticModel, BinaryQuadraticModel, QuadraticModel
 from pyqubo import Array, Constraint, solve_qubo, Binary
 from datetime import datetime
 # # P4 - C_MAX = 20
 # PROFIT = [0,8,3,0]
 # P5 - C_MAX = 25
-PROFIT = [0,8,3,9,0]
-
-C_MAX = 0
+# PROFIT = [0,8,3,9,0]
+# p6 
+PROFIT = [0,8,3,9,1,0]
 N = len(PROFIT)
 def parse_inputs(data_file, capacity):
     """Parse user input and files for data to build CQM.
@@ -100,7 +100,7 @@ def build_knapsack_cqm(profits, vertex1, vertex2,weight, max_weight):
     for from_v,to_v, cos in zip(vertex1, vertex2, weight):            
         constraint5.add_variable('BINARY', "x[{}][{}]".format(from_v,to_v))
         constraint5.set_linear("x[{}][{}]".format(from_v,to_v), cos)
-    cqm.add_constraint(constraint5, sense="<=", rhs=25, weight=None, label='c5')
+    cqm.add_constraint(constraint5, sense="<=", rhs=20, weight=None, label='c5')
     # Check
     # print(obj.variables, obj.linear)
     # print(constraint1.variables, constraint1.linear)
@@ -176,37 +176,34 @@ filename_help = datafile_help()     # Format the help string for the --filename 
 def main(filename, capacity):
     """Solve a knapsack problem using a CQM solver."""
 
-    sampler = LeapHybridCQMSampler()
-
     vertex1, vertex2, weight, C_MAX = parse_inputs(filename, capacity)
     cqm = build_knapsack_cqm(PROFIT,vertex1, vertex2, weight, C_MAX)
     bqm, invert = dimod.cqm_to_bqm(cqm)
 
-    # Dimod
+    # -------Dimod--------
     # start_time = datetime.now()
     # sampleset = dimod.ExactSolver().sample(bqm)
     # end_time =  datetime.now()
-    # QPU
+    
+    # -------QPU--------
     qpu = DWaveSampler()
     sampleset_1 = EmbeddingComposite(qpu).sample(bqm,return_embedding=True,
                                              answer_mode="raw",
                                              num_reads=2000,
                                              annealing_time=1)
     embedding = sampleset_1.info["embedding_context"]["embedding"]  
-    sampleset_50 = FixedEmbeddingComposite(qpu, embedding).sample(bqm,
+    sampleset_25 = FixedEmbeddingComposite(qpu, embedding).sample(bqm,
                                                               answer_mode="raw",
                                                               num_reads=2000,
-                                                              annealing_time=10)
-    # print(sampleset_50.info)
-    # print("Submitting CQM to solver {}.".format(sampler.solver.name))
-    sampleset = sampler.sample_cqm(cqm, label='Example - STSP')
-
-    print(f'first: {sampleset_50.first.sample}')
-    print(f'info: {sampleset_50.info}')
-    # print(sampleset.first.sample)
-    # print(sampleset.first.energy)
-    # delta = end_time - start_time
-    # print('Duration: {}'.format(delta.total_seconds() * 1000))
-
+                                                              annealing_time=25)
+    print(f'first: {sampleset_25.first.sample}')
+    print(f'info: {sampleset_25.info}')
+    print(f'first: {sampleset_25.first.energy}')
+    
+    #-------Hybrid---------
+    # hybrid = LeapHybridSampler(solver={'category': 'hybrid'})
+    # hybrid_sampleset = hybrid.sample(bqm)
+    # print(hybrid_sampleset.first)
+    # print(hybrid_sampleset.info)
 if __name__ == '__main__':
     main()

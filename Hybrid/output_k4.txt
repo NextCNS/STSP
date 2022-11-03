@@ -1,0 +1,29 @@
+Sample(sample={
+    'slack_v801ef1bf41144f8d838a7696f04fd160_0': 0,
+    'slack_v8b728a2ea41a4d9b997762afb1edb587_0': 0, 
+    'slack_vd1b798bfa0eb420cb85237e0bacd8f6c_0': 0, 
+    'slack_vd1b798bfa0eb420cb85237e0bacd8f6c_1': 0, 
+    'slack_vd1b798bfa0eb420cb85237e0bacd8f6c_2': 1, 
+    'slack_vd1b798bfa0eb420cb85237e0bacd8f6c_3': 0, 
+    'slack_vd1b798bfa0eb420cb85237e0bacd8f6c_4': 0, 
+    'x[0][1]': 1, 
+    'x[0][2]': 0, 
+    'x[0][3]': 0, 
+    'x[1][0]': 0, 
+    'x[1][2]': 0, 
+    'x[1][3]': 1, 
+    'x[2][0]': 0, 
+    'x[2][1]': 0, 
+    'x[2][3]': 0, 
+    'x[3][0]': 0, 
+    'x[3][1]': 0, 
+    'x[3][2]': 0}, 
+    energy=-8.0, num_occurrences=1
+)
+{
+    'qpu_access_time': 70022, 
+    'charge_time': 2993131, 
+    'run_time': 2993131, 
+    'problem_id': 'd2c8d9b8-d36b-4874-84a0-468d2088cdbb'
+}
+
