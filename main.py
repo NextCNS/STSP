@@ -2,12 +2,19 @@ import os
 import itertools
 import click
 import math
-import dimod
 import pandas as pd
 from dwave.system import LeapHybridCQMSampler, DWaveSampler,FixedEmbeddingComposite, EmbeddingComposite, LeapHybridSampler
 from dimod import ConstrainedQuadraticModel, BinaryQuadraticModel, QuadraticModel
 from pyqubo import Array, Constraint, solve_qubo, Binary
 from datetime import datetime
+import numpy as np
+import networkx as nx
+import dwave_networkx as dnx
+from dwave.system.composites import EmbeddingComposite
+from collections import defaultdict
+import itertools
+
+
 # # P4 - C_MAX = 20
 # PROFIT = [0,8,3,0]
 # P5 - C_MAX = 25
@@ -15,178 +22,112 @@ from datetime import datetime
 # p6 
 PROFIT = [0,8,3,9,1,0]
 N = len(PROFIT)
-def parse_inputs(data_file, capacity):
-    """Parse user input and files for data to build CQM.
 
-    Args:
-        data_file (csv file):
-            File of connection between arcs
-        capacity (int):
-            Max prefefined weight.
+def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profits=PROFIT, CMax = 13):
+    """Return the QUBO with ground states corresponding to a minimum TSP route.
+    -------
+    QUBO : dict
+       The QUBO with ground states corresponding to a minimum travelling
+       salesperson route. The QUBO variables are labelled `(c, t)` where `c`
+       is a node in `G` and `t` is the time index. For instance, if `('a', 0)`
+       is 1 in the ground state, that means the node 'a' is visted first.
 
-    Returns:
-        profits, weights, and capacity.
     """
-    df = pd.read_csv(data_file, names=['vertex1','vertex2', 'weight'])
+    N = G.number_of_nodes()
+    # Slack variables used for C_max
+    s1 = int(1 + math.log(CMax,2))
 
-    if not capacity:
-        capacity = int(0.8 * sum(df['weight']))
-        print("\nSetting weight capacity to 80% of total: {}".format(str(capacity)))
+    
+    if lagrange is None:
+        if G.number_of_edges()>0:
+            lagrange = G.size(weight='weight')*G.number_of_nodes()/G.number_of_edges()
+        else:
+            lagrange = 2
 
-    return df['vertex1'], df['vertex2'], df['weight'], capacity
-
-def build_knapsack_cqm(profits, vertex1, vertex2,weight, max_weight):
-    """Construct a CQM for the knapsack problem.
-
-    Args:
-        profits (array-like):
-            Array of profits for the items.
-        weights (array-like):
-            Array of weights for the items.
-        max_weight (int):
-            Maximum allowable weight for the knapsack.
-
-    Returns:
-        Constrained quadratic model instance that represents the knapsack problem.
-    """
-    num_items = len(profits)
-    print("\nBuilding a CQM for {} items.".format(str(num_items)))
-
-    cqm = ConstrainedQuadraticModel()
-    obj = BinaryQuadraticModel(vartype='BINARY')
-    constraint1 = QuadraticModel()
-    constraint2 = QuadraticModel()
-    constraint3 = QuadraticModel()
-    constraint4 = QuadraticModel()
-    constraint5 = QuadraticModel()
-
-    #Maximize the total profit
-    for i in range(1, num_items-1):
-        for j in range(1, num_items):
+    # some input checking
+    if N in (1, 2) or len(G.edges) != N*(N-1)//2:
+        msg = "graph must be a complete graph with at least 3 nodes or empty"
+        raise ValueError(msg)
+    
+    
+    # Creating the QUBO
+    Q = defaultdict(float)
+    print(f'larange is {lagrange}')
+    
+    # #Constraint must leave the node 0
+    for i in range(1,N):
+        Q[((0, i), (0, i))] -= lagrange
+        for j in range(i+1, N):
+            Q[((0, i), (0, j))] += 2.0*lagrange
+    
+    # # Constrant must end at node n
+    for i in range(N-1):
+        Q[((i, N-1), (i, N-1))] -= lagrange
+        for j in range(i+1,N-1):
+            Q[((i, N-1), (j, N-1))] += 2.0*lagrange
+    
+    # #Constrant each node must be visited at most once
+    for k in range(1,N-1):
+        for i in range(N-1):
+            if i != k:
+                for j in range(N-1):
+                    if j != i and j!=k:
+                        Q[((i, k), (j, k))] += lagrange
+    
+    # #Constrant each node must leaft at most once
+    for k in range(1,N-1):
+        for i in range(1,N):
+            if i != k:
+                for j in range(1,N):
+                    if j != i and j!=k:
+                        Q[((k, i), (k, j))] += lagrange
+    
+    print(f'Number of slack varable s1 {s1}')
+    #Constrant to make sure the cost is smaller than pre-defined value
+    # print(weight)
+    for i in range(0,N-1):
+        for j in range(1,N):
             if j != i:
-                # Objective is to maximize the total profit
-                obj.add_variable("x[{}][{}]".format(i,j))
-                obj.set_linear("x[{}][{}]".format(i,j), -profits[i])
-    cqm.set_objective(obj)
-    #constraint to start from node 1          
-    for j in range(1, num_items):            
-        constraint1.add_variable('BINARY', "x[{}][{}]".format(0,j))
-        constraint1.set_linear("x[{}][{}]".format(0,j), 1)
-    
-    cqm.add_constraint(constraint1, sense="==", rhs=1, weight=None, label='c1')
-    #constraint to end at node n          
-    for j in range(num_items-1):            
-        constraint2.add_variable('BINARY', "x[{}][{}]".format(j,num_items-1))
-        constraint2.set_linear("x[{}][{}]".format(j,num_items-1), 1)
-    cqm.add_constraint(constraint2, sense="==", rhs=1, weight=None, label='c2')
-    
-    #Visit at most 1
-    for k in range(1, num_items-1):
-        for i in range(num_items-1):
-            if i != k:            
-                constraint3.add_variable('BINARY', "x[{}][{}]".format(i,k))
-                constraint3.set_linear("x[{}][{}]".format(i,k), 1)
-    cqm.add_constraint(constraint3, sense="<=", rhs=1, weight=None, label='c3')
-    
-    #leave at most 1
-    for k in range(1, num_items-1):
-        for j in range(1,num_items):
-            if j != k:            
-                constraint4.add_variable('BINARY', "x[{}][{}]".format(k,j))
-                constraint4.set_linear("x[{}][{}]".format(k,j), 1)
-    cqm.add_constraint(constraint4, sense="<=", rhs=1, weight=None, label='c4')
+                weight_ij = weight[(i,j)] if (i,j) in weight else weight[(j,i)]
+                Q[((i,j), (i,j))] += lagrange*(math.pow(weight_ij,2) - CMax* weight_ij)
+                for k in range(i, N-1):
+                    for h in range(1,N):
+                        if (i,j) != (k,h) and h!= k:
+                            weight_kh = weight[(k,h)] if (k,h) in weight else weight[(h,k)]
+                            Q[((i,j), (k,h))] += lagrange*(weight_ij * weight_kh)
+    # ----Slack of C_max----
+    for i in range(N, N+s1):
+        Q[((i,i), (i,i))] += lagrange*(pow(4,i-N) - CMax)
+        for j in range (N, N+s1):
+            if j!=i:
+                Q[((i,i), (j,j))] += lagrange*(pow(2,i-N)*pow(2,j-N))
+        for h in range(0,N-1):
+            for k in range(1,N):
+                if k != h:
+                    weight_hk = weight[(h,k)] if (h,k) in weight else weight[(k,h)]
+                    Q[((i,i), (h,k))] += lagrange*(math.pow(2,i-N + 1)*weight_hk)
+    return Q
 
-    #smaller than C_Max
-    for from_v,to_v, cos in zip(vertex1, vertex2, weight):            
-        constraint5.add_variable('BINARY', "x[{}][{}]".format(from_v,to_v))
-        constraint5.set_linear("x[{}][{}]".format(from_v,to_v), cos)
-    cqm.add_constraint(constraint5, sense="<=", rhs=20, weight=None, label='c5')
-    # Check
-    # print(obj.variables, obj.linear)
-    # print(constraint1.variables, constraint1.linear)
-    # print(constraint2.variables, constraint2.linear)
-    # print(constraint3.variables, constraint3.linear)
-    # print(constraint4.variables, constraint4.linear)
-    # print(constraint5.variables, constraint5.linear)
-    return cqm
+def main():
+    # import data
+    data = pd.read_csv('data/five_d.txt', sep='\s+', header=None)
+    # G = nx.from_pandas_dataframe(data) 
+    seed = 1
+    np.random.seed(seed)
+    G = nx.from_pandas_adjacency(data)
+    # pos = nx.random_layout(G) 
+    pos = nx.spring_layout(G, seed=seed)
 
-def parse_solution(sampleset):
-    """Translate the best sample returned from solver to shipped items.
+    # get characteristics of graph
+    nodes = G.nodes()
+    edges = G.edges()
+    weights = nx.get_edge_attributes(G,'weight')
+    STSP_QUBO = selective_traveling_salesperson_qubo(G, weight=weights)
+    # print(STSP_QUBO)
 
-    Args:
-
-        sampleset (dimod.Sampleset):
-            Samples returned from the solver.
-        costs (array-like):
-            Array of costs for the items.
-        weights (array-like):
-            Array of weights for the items.
-    """
-    # feasible_sampleset = sampleset.filter(lambda row: row.is_feasible)
-
-    # if not len(feasible_sampleset):
-    #     raise ValueError("No feasible solution found")
-
-    best = sampleset.first
-
-    # selected_item_indices = [key for key, val in best.sample.items() if val==1.0]
-    # selected_weights = list(weights.loc[selected_item_indices])
-    # selected_costs = list(costs.loc[selected_item_indices])
-
-    print("\nFound best solution at energy {}".format(best.energy))
-    # print("\nSelected item numbers (0-indexed):", selected_item_indices)
-    # print("\nSelected item weights: {}, total = {}".format(selected_weights, sum(selected_weights)))
-    # print("\nSelected item costs: {}, total = {}".format(selected_costs, sum(selected_costs)))
-    print("\n Feasible solution: {}".format(best.first.sample))
-
-def datafile_help(max_files=5):
-    """Provide content of input file names and total weights for click()'s --help."""
-
-    try:
-        data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
-        datafiles = os.listdir(data_dir)
-        # "\b" enables newlines in click() help text
-        help = """
-\b
-Name of data file (under the 'data/' folder) to run on.
-One of:
-File Name \t Total weight
-"""
-        for file in datafiles[:max_files]:
-            _, weights, _ = parse_inputs(os.path.join(data_dir, file), 1234)
-            help += "{:<20} {:<10} \n".format(str(file), str(sum(weights)))
-        help += "\nDefault is to run on data/large.csv."
-    except:
-        help = """
-\b
-Name of data file (under the 'data/' folder) to run on.
-Default is to run on data/large.csv.
-"""
-
-    return help
-
-filename_help = datafile_help()     # Format the help string for the --filename argument
-
-@click.command()
-@click.option('--filename', type=click.File(), default='data/large.csv',
-              help=filename_help)
-@click.option('--capacity', default=None,
-              help="Maximum weight for the container. By default sets to 80% of the total.")
-
-def main(filename, capacity):
-    """Solve a knapsack problem using a CQM solver."""
-
-    vertex1, vertex2, weight, C_MAX = parse_inputs(filename, capacity)
-    cqm = build_knapsack_cqm(PROFIT,vertex1, vertex2, weight, C_MAX)
-    bqm, invert = dimod.cqm_to_bqm(cqm)
-
-    # -------Dimod--------
-    # start_time = datetime.now()
-    # sampleset = dimod.ExactSolver().sample(bqm)
-    # end_time =  datetime.now()
-    
     # -------QPU--------
     qpu = DWaveSampler()
+    bqm = BinaryQuadraticModel.from_qubo(STSP_QUBO)
     sampleset_1 = EmbeddingComposite(qpu).sample(bqm,return_embedding=True,
                                              answer_mode="raw",
                                              num_reads=2000,
