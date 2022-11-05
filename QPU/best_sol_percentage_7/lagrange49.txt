@@ -1,0 +1,20 @@
+-------num_reads = 1000 , annealing = 5-------------
+larange is 49
+Best solutions are 0.1% of samples.
+{'timing': {'qpu_sampling_time': 87120.0, 'qpu_anneal_time_per_sample': 5.0, 'qpu_readout_time_per_sample': 61.58, 'qpu_access_time': 102876.37, 'qpu_access_overhead_time': 1674.63, 'qpu_programming_time': 15756.37, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 2547.0, 'post_processing_overhead_time': 2547.0}, 'problem_id': 'f546f065-f695-4edb-8bc9-776f819cabc6'}
+-------num_reads = 1000 , annealing = 15-------------
+larange is 49
+Best solutions are 0.1% of samples.
+{'timing': {'qpu_sampling_time': 100100.0, 'qpu_anneal_time_per_sample': 15.0, 'qpu_readout_time_per_sample': 64.56, 'qpu_access_time': 115857.97, 'qpu_access_overhead_time': 2570.03, 'qpu_programming_time': 15757.97, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 4305.0, 'post_processing_overhead_time': 4305.0}, 'problem_id': '1e309b78-7efe-4002-82e0-2de33bac6d33'}
+
+-------num_reads = 1000 , annealing = 25-------------
+Best solutions are 0.1% of samples.
+{'timing': {'qpu_sampling_time': 133140.0, 'qpu_anneal_time_per_sample': 25.0, 'qpu_readout_time_per_sample': 87.6, 'qpu_access_time': 148899.17, 'qpu_access_overhead_time': 1295.83, 'qpu_programming_time': 15759.17, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 1430.0, 'post_processing_overhead_time': 1430.0}, 'problem_id': '2720dd0f-757e-49f9-853e-a700a3bc6d6d'}
+
+-------num_reads = 1000 , annealing = 35-------------
+larange is 49
+Best solutions are 0.1% of samples.
+{'timing': {'qpu_sampling_time': 158300.0, 'qpu_anneal_time_per_sample': 35.0, 'qpu_readout_time_per_sample': 102.76, 'qpu_access_time': 174057.97, 'qpu_access_overhead_time': 1594.03, 'qpu_programming_time': 15757.97, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 4294.0, 'post_processing_overhead_time': 4294.0}, 'problem_id': '2a6dd955-cbc1-4129-8ccd-0a7b87f626f9'}
+
+-------num_reads = 1000 , annealing = 45-------------
+{'timing': {'qpu_sampling_time': 194260.0, 'qpu_anneal_time_per_sample': 45.0, 'qpu_readout_time_per_sample': 128.72, 'qpu_access_time': 210021.17, 'qpu_access_overhead_time': 2006.83, 'qpu_programming_time': 15761.17, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 571.0, 'post_processing_overhead_time': 571.0}, 'problem_id': '5b766f7f-50b5-4829-827c-a3687739b53d'}

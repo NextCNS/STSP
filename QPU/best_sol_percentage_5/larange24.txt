@@ -1,0 +1,55 @@
+larange = 50%
+
+----num_reads=2000, annealing_time=5 vs 50
+Best solutions are 0.01% of samples.
+Best solutions are 0.3% of samples.
+{'timing': {'qpu_sampling_time': 182120.0, 'qpu_anneal_time_per_sample': 5.0, 'qpu_readout_time_per_sample': 65.52, 'qpu_access_time': 197879.97, 'qpu_access_overhead_time': 2339.03, 'qpu_programming_time': 15759.97, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 595.0, 'post_processing_overhead_time': 595.0}, 'problem_id': 'd68650fa-4b5c-4c29-b2dc-76b349fd9367', 'embedding_context': {'embedding': {(0, 2): (1343, 1342), (0, 1): (1433, 4536, 4537), (0, 3): (1268, 4492, 4491), (0, 4): (4507, 4506), (1, 4): (4597, 1448, 1449), (2, 4): (1283, 4462, 4461), (3, 4): (4417, 1418), (2, 1): (4477, 1253, 4476), (3, 1): (4311, 1373, 1372), (1, 2): (4387, 1464, 1463), (3, 2): (4432, 1313), (1, 3): (1328, 1327), (2, 3): (4567, 1403), (5, 5): (4447, 1238, 4446), (6, 6): (4582, 1388), (7, 7): (4641, 1298, 1299), (8, 8): (4522, 4521), (9, 9): (4402, 1358, 1357)}, 'chain_break_method': 'majority_vote', 'embedding_parameters': {}, 'chain_strength': 2263.2217382660497}}
+{'timing': {'qpu_sampling_time': 272120.0, 'qpu_anneal_time_per_sample': 50.0, 'qpu_readout_time_per_sample': 65.52, 'qpu_access_time': 287879.97, 'qpu_access_overhead_time': 1241.03, 'qpu_programming_time': 15759.97, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 564.0, 'post_processing_overhead_time': 564.0}, 'problem_id': 'd875bbe1-a962-4a36-8d92-368b27ffcc29'}
+
+----num_reads=5000 vs 2000, annealing_time=10 vs 50
+Best solutions are 0.02% of samples.
+Best solutions are 0.4% of samples.
+{'timing': {'qpu_sampling_time': 276840.0, 'qpu_anneal_time_per_sample': 10.0, 'qpu_readout_time_per_sample': 107.88, 'qpu_access_time': 292599.97, 'qpu_access_overhead_time': 1971.03, 'qpu_programming_time': 15759.97, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 430.0, 'post_processing_overhead_time': 430.0}, 'problem_id': 'dd3fa1fc-ddb6-4ad1-b7d4-a8e5eb7609de', 'embedding_context': {'embedding': {(0, 2): (2151, 4225, 4226), (0, 1): (2046, 4135), (0, 3): (4046, 2016, 2017), (0, 4): (4181, 4180), (1, 4): (1926, 4151, 4150), (2, 4): (4285, 1986, 1987), (3, 4): (4270, 2001, 2002), (2, 1): (1971, 4076, 4075), (3, 1): (2076, 2075), (1, 2): (4060, 2106, 4061), (3, 2): (4241, 2121, 2122), (1, 3): (2061, 4120), (2, 3): (2090, 2091), (5, 5): (4196, 4195), (6, 6): (1911, 4211, 4210), (7, 7): (4256, 2031, 2032), (8, 8): (4166, 1941, 4165), (9, 9): (1956, 4105)}, 'chain_break_method': 'majority_vote', 'embedding_parameters': {}, 'chain_strength': 2263.2217382660497}}
+{'timing': {'qpu_sampling_time': 356840.0, 'qpu_anneal_time_per_sample': 50.0, 'qpu_readout_time_per_sample': 107.88, 'qpu_access_time': 372599.97, 'qpu_access_overhead_time': 1499.03, 'qpu_programming_time': 15759.97, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 676.0, 'post_processing_overhead_time': 676.0}, 'problem_id': '66511a97-7a9f-4018-aecc-fe407ef68b25'}
+
+----num_reads=5000 vs 2000, annealing_time=1 vs 50
+Best solutions are 0.04% of samples.
+Best solutions are 0.6% of samples.
+{'timing': {'qpu_sampling_time': 460600.0, 'qpu_anneal_time_per_sample': 1.0, 'qpu_readout_time_per_sample': 70.58, 'qpu_access_time': 476361.17, 'qpu_access_overhead_time': 4906.83, 'qpu_programming_time': 15761.17, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 2883.0, 'post_processing_overhead_time': 297.0}, 'problem_id': 'bcc6669d-d59c-43e2-af9c-082499f440de', 'embedding_context': {'embedding': {(0, 2): (1069, 1068), (0, 1): (1143, 3725), (0, 3): (3680, 1233, 3681), (0, 4): (3755, 1218, 1219), (1, 4): (3665, 1279, 3666), (2, 4): (1083, 3695, 1084), (3, 4): (1158, 3740), (2, 1): (1053, 1054), (3, 1): (3620, 1248, 3621), (1, 2): (1173, 3590), (3, 2): (3785, 1128, 1129), (1, 3): (1188, 3575), (2, 3): (3770, 1203, 1204), (5, 5): (3545, 1113, 1114), (6, 6): (3635, 3636), (7, 7): (1098, 3800, 1099), (8, 8): (3650, 3651), (9, 9): (993, 3606, 3605)}, 'chain_break_method': 'majority_vote', 'embedding_parameters': {}, 'chain_strength': 2263.2217382660497}}
+{'timing': {'qpu_sampling_time': 282240.0, 'qpu_anneal_time_per_sample': 50.0, 'qpu_readout_time_per_sample': 70.58, 'qpu_access_time': 298001.17, 'qpu_access_overhead_time': 1252.83, 'qpu_programming_time': 15761.17, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 2206.0, 'post_processing_overhead_time': 2206.0}, 'problem_id': '812d1cb6-9f41-4d44-b359-50addd1371be'}
+
+----num_reads=5000 vs 2000, annealing_time=5 vs 45
+Best solutions are 0.11% of samples.
+Best solutions are 0.4% of samples.
+{'timing': {'qpu_sampling_time': 370100.0, 'qpu_anneal_time_per_sample': 5.0, 'qpu_readout_time_per_sample': 48.48, 'qpu_access_time': 385859.97, 'qpu_access_overhead_time': 3435.03, 'qpu_programming_time': 15759.97, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 1182.0, 'post_processing_overhead_time': 223.0}, 'problem_id': '1fbc8367-1e1c-42fd-a2b6-7a0faba9372a', 'embedding_context': {'embedding': {(0, 2): (3553, 3554), (0, 1): (3478, 2733, 3479), (0, 3): (3448, 2762, 3449), (0, 4): (3433, 3434, 2777), (1, 4): (3404, 3403, 2582), (2, 4): (3494, 2612), (3, 4): (3344, 2687, 2688), (2, 1): (2672, 2673), (3, 1): (3539, 2627), (1, 2): (3463, 2748, 3464), (3, 2): (3659, 2642, 2643), (1, 3): (3419, 2597, 3418), (2, 3): (3524, 2703, 2702), (5, 5): (3389, 3388, 2553, 2552), (6, 6): (3568, 3569), (7, 7): (3644, 2657, 2658), (8, 8): (3359, 2568, 2567), (9, 9): (2718, 3509, 2717)}, 'chain_break_method': 'majority_vote', 'embedding_parameters': {}, 'chain_strength': 2263.2217382660497}}
+{'timing': {'qpu_sampling_time': 228040.0, 'qpu_anneal_time_per_sample': 45.0, 'qpu_readout_time_per_sample': 48.48, 'qpu_access_time': 243799.97, 'qpu_access_overhead_time': 1361.03, 'qpu_programming_time': 15759.97, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 592.0, 'post_processing_overhead_time': 592.0}, 'problem_id': '5ba522c0-421e-4dd5-8ec3-45ed65c2dd53'}
+
+----num_reads=5000 vs 2000, annealing_time=10 vs 40
+Best solutions are 0.22% of samples.
+Best solutions are 0.3% of samples.
+{'timing': {'qpu_sampling_time': 476800.0, 'qpu_anneal_time_per_sample': 10.0, 'qpu_readout_time_per_sample': 64.82, 'qpu_access_time': 492560.77, 'qpu_access_overhead_time': 2975.23, 'qpu_programming_time': 15760.77, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 1411.0, 'post_processing_overhead_time': 504.0}, 'problem_id': 'd4334c8f-2ca5-44b9-8211-5a815296f98b', 'embedding_context': {'embedding': {(0, 2): (1396, 1395), (0, 1): (1530, 3036, 3037), (0, 3): (3142, 1350), (0, 4): (3307, 1425, 1426), (1, 4): (3157, 3158), (2, 4): (1291, 3128, 3127), (3, 4): (3262, 1440, 1441), (2, 1): (1306, 3202, 3201), (3, 1): (3172, 3173), (1, 2): (3277, 1410, 1411), (3, 2): (3067, 1500), (1, 3): (1335, 3097, 3096), (2, 3): (1380, 1381), (5, 5): (3112, 1365), (6, 6): (3082, 1515), (7, 7): (3052, 1320, 3051), (8, 8): (3186, 1486, 3187), (9, 9): (2977, 1456, 1455)}, 'chain_break_method': 'majority_vote', 'embedding_parameters': {}, 'chain_strength': 2263.2217382660497}}
+{'timing': {'qpu_sampling_time': 250720.0, 'qpu_anneal_time_per_sample': 40.0, 'qpu_readout_time_per_sample': 64.82, 'qpu_access_time': 266480.77, 'qpu_access_overhead_time': 1195.23, 'qpu_programming_time': 15760.77, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 630.0, 'post_processing_overhead_time': 630.0}, 'problem_id': '8990f964-f128-4bed-8941-4a893da06307'}
+
+----------------------------------------------------------------------------------------------------
+
+-------num_reads = 1000 , annealing = 5-------------
+larange is 24.0
+Best solutions are 0.2% of samples.
+{'timing': {'qpu_sampling_time': 64460.0, 'qpu_anneal_time_per_sample': 5.0, 'qpu_readout_time_per_sample': 38.92, 'qpu_access_time': 80215.57, 'qpu_access_overhead_time': 1040.43, 'qpu_programming_time': 15755.57, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 542.0, 'post_processing_overhead_time': 542.0}, 'problem_id': '868b9e07-49b0-47c4-9d28-c096992cb403'}
+
+-------num_reads = 1000 , annealing = 15-------------
+larange is 24.0
+Best solutions are 0.4% of samples.
+{'timing': {'qpu_sampling_time': 114520.0, 'qpu_anneal_time_per_sample': 15.0, 'qpu_readout_time_per_sample': 78.98, 'qpu_access_time': 130275.97, 'qpu_access_overhead_time': 875.03, 'qpu_programming_time': 15755.97, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 2064.0, 'post_processing_overhead_time': 2064.0}, 'problem_id': '6d3e93b6-239c-40ac-a1b3-f6869f660702'}
+
+-------num_reads = 1000 , annealing = 25-------------
+Best solutions are 0.2% of samples.
+{'timing': {'qpu_sampling_time': 134360.0, 'qpu_anneal_time_per_sample': 25.0, 'qpu_readout_time_per_sample': 88.82, 'qpu_access_time': 150117.57, 'qpu_access_overhead_time': 756.43, 'qpu_programming_time': 15757.57, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 2038.0, 'post_processing_overhead_time': 2038.0}, 'problem_id': '5031c1b7-6e2a-4e68-abf2-3756a1eedee5'}
+
+-------num_reads = 1000 , annealing = 35-------------
+Best solutions are 0.3% of samples.
+{'timing': {'qpu_sampling_time': 142620.0, 'qpu_anneal_time_per_sample': 35.0, 'qpu_readout_time_per_sample': 87.08, 'qpu_access_time': 158377.57, 'qpu_access_overhead_time': 959.43, 'qpu_programming_time': 15757.57, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 274.0, 'post_processing_overhead_time': 274.0}, 'problem_id': '02db2923-ec63-42e5-85cc-bdad571130d8'}
+
+-------num_reads = 1000 , annealing = 45-------------
+Best solutions are 0.4% of samples.
+{'timing': {'qpu_sampling_time': 174380.0, 'qpu_anneal_time_per_sample': 45.0, 'qpu_readout_time_per_sample': 108.84, 'qpu_access_time': 190137.57, 'qpu_access_overhead_time': 912.43, 'qpu_programming_time': 15757.57, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 3829.0, 'post_processing_overhead_time': 3829.0}, 'problem_id': '067b7001-bd60-48ee-899c-27e3b2b46691'}

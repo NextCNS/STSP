@@ -20,10 +20,11 @@ import itertools
 # P5 - C_MAX = 25
 # PROFIT = [0,8,3,9,0]
 # p6 
-PROFIT = [0,8,3,9,1,0]
-N = len(PROFIT)
+PROFIT_5 = [0,8,9,10,0]
+PROFIT_6 = [0,8,9,10,7,0]
+PROFIT_7 = [0,8,9,10,7,6,0]
 
-def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profits=PROFIT, CMax = 13):
+def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profits=PROFIT_7,CMax = None):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
     -------
     QUBO : dict
@@ -35,14 +36,17 @@ def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profi
     """
     N = G.number_of_nodes()
     # Slack variables used for C_max
-    s1 = int(1 + math.log(CMax,2))
 
-    
     if lagrange is None:
         if G.number_of_edges()>0:
+            print(f'G.size={G.size(weight="weight")}, num_node = {G.number_of_nodes()}, num_edges = {G.number_of_edges()}')
             lagrange = G.size(weight='weight')*G.number_of_nodes()/G.number_of_edges()
         else:
             lagrange = 2
+    if CMax is None:
+        CMax = lagrange
+    
+    s1 = int(1 + math.log(CMax,2))
 
     # some input checking
     if N in (1, 2) or len(G.edges) != N*(N-1)//2:
@@ -82,7 +86,7 @@ def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profi
                     if j != i and j!=k:
                         Q[((k, i), (k, j))] += lagrange
     
-    print(f'Number of slack varable s1 {s1}')
+    # print(f'Number of slack varable s1 {s1}')
     #Constrant to make sure the cost is smaller than pre-defined value
     # print(weight)
     for i in range(0,N-1):
@@ -95,7 +99,7 @@ def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profi
                         if (i,j) != (k,h) and h!= k:
                             weight_kh = weight[(k,h)] if (k,h) in weight else weight[(h,k)]
                             Q[((i,j), (k,h))] += lagrange*(weight_ij * weight_kh)
-    # ----Slack of C_max----
+    # # ----Slack of C_max----
     for i in range(N, N+s1):
         Q[((i,i), (i,i))] += lagrange*(pow(4,i-N) - CMax)
         for j in range (N, N+s1):
@@ -106,11 +110,17 @@ def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profi
                 if k != h:
                     weight_hk = weight[(h,k)] if (h,k) in weight else weight[(k,h)]
                     Q[((i,i), (h,k))] += lagrange*(math.pow(2,i-N + 1)*weight_hk)
+    
+    # Objective function
+    for i in range(1,N-1):
+        for j in range(1,N):
+            if j!= i:
+                Q[((i,j), (i,j))] -= profits[i] 
     return Q
 
 def main():
     # import data
-    data = pd.read_csv('data/five_d.txt', sep='\s+', header=None)
+    data = pd.read_csv('data/seven_d.txt', sep='\s+', header=None)
     # G = nx.from_pandas_dataframe(data) 
     seed = 1
     np.random.seed(seed)
@@ -122,29 +132,26 @@ def main():
     nodes = G.nodes()
     edges = G.edges()
     weights = nx.get_edge_attributes(G,'weight')
-    STSP_QUBO = selective_traveling_salesperson_qubo(G, weight=weights)
+    STSP_QUBO = selective_traveling_salesperson_qubo(G, weight=weights, lagrange=49)
     # print(STSP_QUBO)
 
-    # -------QPU--------
+    # # -------QPU--------
     qpu = DWaveSampler()
     bqm = BinaryQuadraticModel.from_qubo(STSP_QUBO)
-    sampleset_1 = EmbeddingComposite(qpu).sample(bqm,return_embedding=True,
+
+    sampleset_1 = EmbeddingComposite(qpu).sample(bqm,
+                                             return_embedding=True,
                                              answer_mode="raw",
-                                             num_reads=2000,
-                                             annealing_time=1)
+                                             num_reads=5000,
+                                             annealing_time=1)  
     embedding = sampleset_1.info["embedding_context"]["embedding"]  
-    sampleset_25 = FixedEmbeddingComposite(qpu, embedding).sample(bqm,
+    sampleset = FixedEmbeddingComposite(qpu, embedding).sample(bqm,
                                                               answer_mode="raw",
-                                                              num_reads=2000,
-                                                              annealing_time=25)
-    print(f'first: {sampleset_25.first.sample}')
-    print(f'info: {sampleset_25.info}')
-    print(f'first: {sampleset_25.first.energy}')
-    
-    #-------Hybrid---------
-    # hybrid = LeapHybridSampler(solver={'category': 'hybrid'})
-    # hybrid_sampleset = hybrid.sample(bqm)
-    # print(hybrid_sampleset.first)
-    # print(hybrid_sampleset.info)
+                                                              num_reads=1000,
+                                                              annealing_time=5)
+    # print("Best solutions are {}% of samples.".format(len(sampleset_1.lowest(atol=0.5).record.energy)/100))   
+    print("Best solutions are {}% of samples.".format(len(sampleset.lowest(atol=0.5).record.energy)/10))
+    # print(sampleset_1.info)
+    print(sampleset.info)  
 if __name__ == '__main__':
     main()

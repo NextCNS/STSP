@@ -1,0 +1,25 @@
+-------num_reads = 1000 , annealing = 5-------------
+larange is 4.8
+Best solutions are 0.5% of samples.
+{'timing': {'qpu_sampling_time': 89400.0, 'qpu_anneal_time_per_sample': 5.0, 'qpu_readout_time_per_sample': 63.86, 'qpu_access_time': 105156.37, 'qpu_access_overhead_time': 752.63, 'qpu_programming_time': 15756.37, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 2016.0, 'post_processing_overhead_time': 2016.0}, 'problem_id': '05c0ec40-c62c-4378-8d88-6280eb1b3515'}
+
+-------num_reads = 1000 , annealing = 15-------------
+larange is 4.8
+Best solutions are 0.3% of samples.
+{'timing': {'qpu_sampling_time': 95800.0, 'qpu_anneal_time_per_sample': 15.0, 'qpu_readout_time_per_sample': 60.26, 'qpu_access_time': 111556.37, 'qpu_access_overhead_time': 886.63, 'qpu_programming_time': 15756.37, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 2029.0, 'post_processing_overhead_time': 2029.0}, 'problem_id': '6d421cd9-079a-4088-aee0-d3b4f4d83c89'}
+
+-------num_reads = 1000 , annealing = 25-------------
+larange is 4.8
+Best solutions are 0.2% of samples.
+{'timing': {'qpu_sampling_time': 125720.0, 'qpu_anneal_time_per_sample': 25.0, 'qpu_readout_time_per_sample': 80.18, 'qpu_access_time': 141478.77, 'qpu_access_overhead_time': 1510.23, 'qpu_programming_time': 15758.77, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 2540.0, 'post_processing_overhead_time': 2540.0}, 'problem_id': '940f2f82-aee4-4879-be25-acbfd93481bf'}
+
+-------num_reads = 1000 , annealing = 35-------------
+larange is 4.8
+Best solutions are 0.2% of samples.
+{'timing': {'qpu_sampling_time': 136440.0, 'qpu_anneal_time_per_sample': 35.0, 'qpu_readout_time_per_sample': 80.9, 'qpu_access_time': 152195.57, 'qpu_access_overhead_time': 903.43, 'qpu_programming_time': 15755.57, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 394.0, 'post_processing_overhead_time': 394.0}, 'problem_id': 'c04f5232-f652-46a5-b971-85fcf1925c5b'}
+
+-------num_reads = 1000 , annealing = 45-------------
+
+larange is 4.8
+Best solutions are 0.4% of samples.
+{'timing': {'qpu_sampling_time': 172980.0, 'qpu_anneal_time_per_sample': 45.0, 'qpu_readout_time_per_sample': 107.44, 'qpu_access_time': 188738.77, 'qpu_access_overhead_time': 876.23, 'qpu_programming_time': 15758.77, 'qpu_delay_time_per_sample': 20.54, 'total_post_processing_time': 1023.0, 'post_processing_overhead_time': 1023.0}, 'problem_id': 'd4e4f7e7-ab62-4a41-8ded-848f9257baee'}
