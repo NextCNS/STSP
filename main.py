@@ -24,7 +24,7 @@ PROFIT_5 = [0,8,9,10,0]
 PROFIT_6 = [0,8,9,10,7,0]
 PROFIT_7 = [0,8,9,10,7,6,0]
 
-def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profits=PROFIT_7,CMax = None):
+def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profits=PROFIT_5,CMax = None):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
     -------
     QUBO : dict
@@ -120,7 +120,7 @@ def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profi
 
 def main():
     # import data
-    data = pd.read_csv('data/seven_d.txt', sep='\s+', header=None)
+    data = pd.read_csv('data/five_d.txt', sep='\s+', header=None)
     # G = nx.from_pandas_dataframe(data) 
     seed = 1
     np.random.seed(seed)
@@ -146,9 +146,10 @@ def main():
                                              annealing_time=1)  
     embedding = sampleset_1.info["embedding_context"]["embedding"]  
     sampleset = FixedEmbeddingComposite(qpu, embedding).sample(bqm,
+                                                                return_embedding=True,
                                                               answer_mode="raw",
                                                               num_reads=1000,
-                                                              annealing_time=5)
+                                                              annealing_time=25)
     # print("Best solutions are {}% of samples.".format(len(sampleset_1.lowest(atol=0.5).record.energy)/100))   
     print("Best solutions are {}% of samples.".format(len(sampleset.lowest(atol=0.5).record.energy)/10))
     # print(sampleset_1.info)
