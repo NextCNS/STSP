@@ -25,7 +25,7 @@ PROFIT_5 = [0,4,2,3,0]
 PROFIT_6 = [0,4,2,3,2,0]
 PROFIT_7 = [0,4,2,3,1,2,0]
 
-def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profits=PROFIT_5,CMax = None):
+def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profits=PROFIT_6,CMax = None):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
     -------
     QUBO : dict
@@ -121,7 +121,7 @@ def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profi
 
 def main():
     # import data
-    data = pd.read_csv('data/five_d.txt', sep='\s+', header=None)
+    data = pd.read_csv('data/six_d.txt', sep='\s+', header=None)
     # G = nx.from_pandas_dataframe(data) 
     seed = 1
     np.random.seed(seed)
@@ -136,7 +136,7 @@ def main():
 
     larange_per = [0.05, 0.1, 0.15,0.2,0.25]
     annealing = [5,15,25,35,45]
-    total_profit = sum(PROFIT_5) 
+    total_profit = sum(PROFIT_6) 
     qpu = DWaveSampler(solver='DW_2000Q_6')
     for lag in larange_per:
         STSP_QUBO = selective_traveling_salesperson_qubo(G, weight=weights, lagrange=lag*total_profit)
@@ -148,7 +148,7 @@ def main():
                                                               num_reads=1000,
                                                               annealing_time=ann)
             embedding = sampleset.info['embedding_context']['embedding']
-            with open('/workspace/stsp_ver2/final_output/five.txt', 'a') as f:
+            with open('/workspace/stsp_ver2/final_output/six.txt', 'a') as f:
                 print(f"-------------------Larange = {lag}, annealing_time = {ann}", file=f)
                 print(f"Number of logical variables: {len(embedding.keys())}", file=f)
                 print(f"Number of physical qubits used in embedding: {sum(len(chain) for chain in embedding.values())}", file=f)
