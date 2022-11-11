@@ -20,9 +20,10 @@ import itertools
 # P5 - C_MAX = 25
 # PROFIT = [0,8,3,9,0]
 # p6 
-PROFIT_5 = [0,8,9,10,0]
-PROFIT_6 = [0,8,9,10,7,0]
-PROFIT_7 = [0,8,9,10,7,6,0]
+
+PROFIT_5 = [0,4,2,3,0]
+PROFIT_6 = [0,4,2,3,2,0]
+PROFIT_7 = [0,4,2,3,1,2,0]
 
 def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profits=PROFIT_5,CMax = None):
     """Return the QUBO with ground states corresponding to a minimum TSP route.
@@ -44,7 +45,7 @@ def selective_traveling_salesperson_qubo(G, lagrange=None, weight='weight',profi
         else:
             lagrange = 2
     if CMax is None:
-        CMax = lagrange
+        CMax = 0.2*G.size(weight='weight')
     
     s1 = int(1 + math.log(CMax,2))
 
@@ -132,27 +133,28 @@ def main():
     nodes = G.nodes()
     edges = G.edges()
     weights = nx.get_edge_attributes(G,'weight')
-    STSP_QUBO = selective_traveling_salesperson_qubo(G, weight=weights, lagrange=49)
-    # print(STSP_QUBO)
 
-    # # -------QPU--------
-    qpu = DWaveSampler()
-    bqm = BinaryQuadraticModel.from_qubo(STSP_QUBO)
-
-    sampleset_1 = EmbeddingComposite(qpu).sample(bqm,
-                                             return_embedding=True,
-                                             answer_mode="raw",
-                                             num_reads=5000,
-                                             annealing_time=1)  
-    embedding = sampleset_1.info["embedding_context"]["embedding"]  
-    sampleset = FixedEmbeddingComposite(qpu, embedding).sample(bqm,
-                                                                return_embedding=True,
+    larange_per = [0.05, 0.1, 0.15,0.2,0.25]
+    annealing = [5,15,25,35,45]
+    total_profit = sum(PROFIT_5) 
+    qpu = DWaveSampler(solver='DW_2000Q_6')
+    for lag in larange_per:
+        STSP_QUBO = selective_traveling_salesperson_qubo(G, weight=weights, lagrange=lag*total_profit)
+        bqm = BinaryQuadraticModel.from_qubo(STSP_QUBO)
+        for ann in annealing:
+            sampleset = EmbeddingComposite(qpu).sample(bqm,
+                                                              return_embedding=True,
                                                               answer_mode="raw",
                                                               num_reads=1000,
-                                                              annealing_time=25)
-    # print("Best solutions are {}% of samples.".format(len(sampleset_1.lowest(atol=0.5).record.energy)/100))   
-    print("Best solutions are {}% of samples.".format(len(sampleset.lowest(atol=0.5).record.energy)/10))
-    # print(sampleset_1.info)
-    print(sampleset.info)  
+                                                              annealing_time=ann)
+            embedding = sampleset.info['embedding_context']['embedding']
+            with open('/workspace/stsp_ver2/final_output/five.txt', 'a') as f:
+                print(f"-------------------Larange = {lag}, annealing_time = {ann}", file=f)
+                print(f"Number of logical variables: {len(embedding.keys())}", file=f)
+                print(f"Number of physical qubits used in embedding: {sum(len(chain) for chain in embedding.values())}", file=f)
+                print(f"sample info {sampleset.info}", file=f)
+                print(f"first {sampleset.first}", file =f)
+
+
 if __name__ == '__main__':
     main()
